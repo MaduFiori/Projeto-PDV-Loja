@@ -26,6 +26,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import Atxy2k.CustomTextField.RestrictedTextField;
 import model.DAO;
 
 public class Clientes extends JDialog {
@@ -234,6 +235,11 @@ public class Clientes extends JDialog {
 		getContentPane().add(btnCliAtualizar);
 		
 		btnCliDelete = new JButton("");
+		btnCliDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				excluirUsuario();
+			}
+		});
 		btnCliDelete.setContentAreaFilled(false);
 		btnCliDelete.setBorderPainted(false);
 		btnCliDelete.setIcon(new ImageIcon(Clientes.class.getResource("/img/delete.png")));
@@ -251,6 +257,24 @@ public class Clientes extends JDialog {
 		btnCliId.setIcon(new ImageIcon(Clientes.class.getResource("/img/search.png")));
 		btnCliId.setBounds(172, 100, 36, 23);
 		getContentPane().add(btnCliId);
+		
+		RestrictedTextField validartelefone = new RestrictedTextField(txtCliTelefone);
+		validartelefone.setOnlyNums(true);
+		validartelefone.setLimit(20);
+		
+		//txtUsuNome
+		RestrictedTextField validarcep = new RestrictedTextField(txtCliCep);
+		validarcep.setLimit(8);
+		
+		//txtLogin
+		RestrictedTextField validarcpf = new RestrictedTextField(txtCliCpf);
+		
+		scrollPane = new JScrollPane();
+		scrollPane.setBounds(141, 322, 113, -42);
+		getContentPane().add(scrollPane);
+		validarcpf.setOnlyNums(true);
+		validarcpf.setLimit(255);
+		
 
 	}//fim do construtor
 	
@@ -263,6 +287,7 @@ public class Clientes extends JDialog {
 	private JButton btnCliAtualizar;
 	private JButton btnCliDelete;
 	private JButton btnCliId;
+	private JScrollPane scrollPane;
 	
 	/**
 	 * M�todo rrespons�vel pela pesquisa de usu�rios pelo CPF
@@ -300,16 +325,17 @@ public class Clientes extends JDialog {
 					cboCliMark.setSelectedItem(rs.getString(7));
 					txtCliCep.setText(rs.getString(8));
 					txtCliEnd.setText(rs.getString(9));
-					txtCliNum.setText(rs.getString(9));
-					txtCliBairro.setText(rs.getString(10));
-					txtCliCidade.setText(rs.getString(11));
-					cboCliUf.setSelectedItem(rs.getString(12));
+					txtCliNum.setText(rs.getString(10));
+					txtCliBairro.setText(rs.getString(11));
+					txtCliCidade.setText(rs.getString(12));
+					cboCliUf.setSelectedItem(rs.getString(13));
 					
 				} else {
-					JOptionPane.showMessageDialog(null, "Usu�rio inexistente");
+					JOptionPane.showMessageDialog(null, "Cliente inexistente");
 				}
 				// NUNCA esquecer de encerrar a conex�o
 				con.close();
+				
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -358,7 +384,7 @@ public class Clientes extends JDialog {
 					cboCliUf.setSelectedItem(rs.getString(13));
 					
 				} else {
-					JOptionPane.showMessageDialog(null, "Usu�rio inexistente");
+					JOptionPane.showMessageDialog(null, "Cliente inexistente");
 				}
 				// NUNCA esquecer de encerrar a conex�o
 				con.close();
@@ -430,7 +456,7 @@ public class Clientes extends JDialog {
 					
 				}else {
 					// Lógica principal
-					String create = " insert into clientes (nome,datanasc,telefone,cpf,email,marketing,cep,endereco,bairro,cidade,uf) values (?,?,?,?,?,?,?,?,?,?,?)";
+					String create = " insert into clientes (nome,datanasc,telefone,cpf,email,marketing,cep,endereco,numero,bairro,cidade,uf) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 				try {
 					// Estabelecer a conex�o
 					Connection con = dao.conectar();
@@ -453,11 +479,11 @@ public class Clientes extends JDialog {
 					//executar a query e inserir o usuário no banco
 					pst.executeUpdate();
 					// Encerrar a conexão
-					JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso.");
+					JOptionPane.showMessageDialog(null, "Cliente cadastrado com sucesso.");
 					limparcampos();
 					con.close();
 				}catch(SQLIntegrityConstraintViolationException ex){
-					JOptionPane.showMessageDialog(null, "Cliente existente");
+					JOptionPane.showMessageDialog(null, "Cpf em uso existente");
 					txtCliCpf.setText(null);
 					txtCliCpf.requestFocus();
 				}catch (Exception e) {
@@ -547,11 +573,11 @@ public class Clientes extends JDialog {
 				pst.executeUpdate();
 				// confirmação
 				limparcampos();
-				JOptionPane.showMessageDialog(null, "Usuário alterado com sucesso");
+				JOptionPane.showMessageDialog(null, "Cliente alterado com sucesso");
 				// Encerrar a conexão
 				con.close();
 			} catch (SQLIntegrityConstraintViolationException ex) {
-				JOptionPane.showMessageDialog(null, "Login em uso.\nEscolha outro login");
+				JOptionPane.showMessageDialog(null, "Cliente existente ");
 				txtCliCpf.setText(null);
 				txtCliCpf.requestFocus();
 			} catch (Exception e) {
@@ -571,7 +597,7 @@ public class Clientes extends JDialog {
 		int confirma = JOptionPane.showConfirmDialog(null, "Confirma a exclusão do usuário?", "Atenção!",JOptionPane.YES_NO_OPTION);
 		
 		if(confirma == JOptionPane.YES_OPTION) {
-			String delete = "delete from usuarios where idusu=?";
+			String delete = "delete from clientes where idcli=?";
 			try {
 				// Estabelecer a conex�o
 				Connection con = dao.conectar();
@@ -651,5 +677,4 @@ public class Clientes extends JDialog {
 		txtCliCidade.setText(null);
 		cboCliUf.setSelectedItem("");
 	}
-
 }//fim do código
